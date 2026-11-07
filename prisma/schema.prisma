@@ -1,0 +1,161 @@
+// Prisma Schema - Sistem Informasi Manajemen Operasional Gudang Percetakan (PRD v2.0 + v1.0)
+datasource db {
+  provider = "sqlite"
+  url      = "file:../data/gudang.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                   Int       @id @default(autoincrement())
+  name                 String
+  email                String    @unique
+  password_hash        String
+  role                 String    // ADMIN | KEPALA_GUDANG | PETUGAS
+  is_active            Boolean   @default(true)
+  must_change_password Boolean   @default(false)
+  failed_login_count   Int       @default(0)
+  locked_until         DateTime?
+  last_login_at        DateTime?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+
+  @@map("users")
+}
+
+model Category {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  code_prefix String  @default("ITM")
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  items      Item[]
+
+  @@map("categories")
+}
+
+model Unit {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+
+  @@map("units")
+}
+
+model Supplier {
+  id            Int      @id @default(autoincrement())
+  code          String   @unique
+  name          String
+  contact_name  String?
+  phone         String?
+  email         String?
+  address       String?
+  payment_terms String?
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("suppliers")
+}
+
+model Item {
+  id                 Int       @id @default(autoincrement())
+  sku                String    @unique
+  name               String
+  category_id        Int
+  unit_id            Int
+  purchase_unit_id   Int?
+  conversion_factor  Float     @default(1) // Misal 1 Rim = 500 Lembar, 1 Kaleng = 5 Kg
+  current_stock      Float     @default(0) // CHECK (current_stock >= 0)
+  avg_cost           Float     @default(0) // Rata-rata bergerak (Moving Average)
+  last_purchase_cost Float     @default(0)
+  min_stock          Float     @default(0)
+  allow_decimal      Boolean   @default(false)
+  // Atribut khusus percetakan (PRD v1.0)
+  paper_type         String?   // Art Paper, HVS, Ivory, Duplex, dll
+  grammage           Int?      // gsm (misal 150)
+  length_cm          Float?    // Panjang plano / sisa (cm)
+  width_cm           Float?    // Lebar plano / sisa (cm)
+  ink_color          String?   // Cyan, Magenta, Yellow, Black, Pantone
+  is_remnant         Boolean   @default(false) // True untuk SKU Turunan Kategori Sisa >= 20cm
+  parent_item_id     Int?      // Relasi ke SKU Kertas Induk
+  zero_stock_since   DateTime? // Untuk BR-004 Auto-Archive > 30 hari saldo 0
+  is_active          Boolean   @default(true)
+  notes              String?
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+
+  category Category @relation(fields: [category_id], references: [id])
+
+  @@map("items")
+}
+
+model Transaction {
+  id                      Int      @id @default(autoincrement())
+  transaction_number      String   @unique
+  type                    String   // IN | OUT | ADJUSTMENT | OPENING | REVERSAL | CUTTING
+  transaction_date        String   // YYYY-MM-DD
+  reference_number        String?  // Nomor Nota / Surat Jalan / Job SPK
+  requester_name          String?  // Nama Pemohon / Divisi (OUT / CUTTING)
+  supplier_id             Int?
+  purchase_order_id       Int?
+  reverses_transaction_id Int?     @unique
+  reason_code             String?
+  notes                   String?
+  // Info pemotongan kertas (FR-004 & BR-003)
+  cutting_info_json       String?
+  request_id              String   @unique // UUID Idempotency
+  user_id                 Int
+  created_at              DateTime @default(now())
+
+  @@map("transactions")
+}
+
+model TransactionDetail {
+  id             Int    @id @default(autoincrement())
+  transaction_id Int
+  item_id        Int
+  po_item_id     Int?
+  quantity       Float  // Positif input dalam satuan dasar
+  input_quantity Float? // Kuantitas dalam satuan beli (misal 2 Rim)
+  input_unit     String?
+  qty_delta      Float  // Bertanda (+ / -)
+  unit_cost      Float  @default(0)
+  balance_after  Float
+
+  @@unique([transaction_id, item_id])
+  @@map("transaction_details")
+}
+
+model PurchaseOrder {
+  id             Int       @id @default(autoincrement())
+  po_number      String    @unique
+  supplier_id    Int
+  po_date        String
+  expected_date  String?
+  status         String    // DRAFT | SENT | PARTIALLY_RECEIVED | FULLY_RECEIVED | CLOSED | CANCELLED
+  ppn_percent    Float     @default(0)
+  discount_total Float     @default(0)
+  other_cost     Float     @default(0)
+  subtotal       Float     @default(0)
+  tax_amount     Float     @default(0)
+  total_amount   Float     @default(0)
+  // Pelacakan Hutang / Pembayaran PO
+  payment_status String    @default("UNPAID") // UNPAID | PARTIAL | PAID
+  paid_amount    Float     @default(0)
+  due_date       String?
+  notes          String?
+  status_reason  String?
+  created_by     Int
+  sent_at        DateTime?
+  closed_at      DateTime?
+  cancelled_at   DateTime?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  @@map("purchase_orders")
+}
+

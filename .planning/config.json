@@ -1,0 +1,12 @@
+{
+  "workflow": "gsd",
+  "version": "2.0.0",
+  "project_name": "Sistem Informasi Operasional Gudang Percetakan",
+  "tech_stack": {
+    "framework": "Next.js 15 (App Router)",
+    "runtime": "Node.js 24 (node:sqlite)",
+    "styling": "Tailwind CSS + taste-skill (white-mint-tiles, geist, sharp)",
+    "database": "SQLite (WAL Mode, Append-Only Mutasi Ledger)"
+  }
+}
+

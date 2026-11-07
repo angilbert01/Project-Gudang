@@ -1,0 +1,261 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   taste-skill (design-taste-frontend v2.5.0) Dealt System
+   Page: software | Palette: white-mint-tiles | Type: geist | Radius: sharp
+   Zero violet/purple/indigo rule strictly enforced.
+   ========================================================================== */
+
+:root {
+  --p-bg: #ffffff;
+  --p-surface: #f3f3f3;
+  --p-ink: #232323;
+  --p-muted: #686868;
+  --p-accent: #a1ffcb;
+  --p-accent-ink: #232323;
+  --p-action: #232323;
+  --p-action-ink: #ffffff;
+  --p-inv-bg: #232323;
+  --p-inv-surface: #303030;
+  --p-inv-ink: #ffffff;
+  --p-inv-muted: #a4a4a4;
+  --p-inv-accent: #a1ffcb;
+  --p-inv-accent-ink: #232323;
+  --p-inv-action: #a1ffcb;
+  --p-inv-action-ink: #232323;
+
+  --font-display: "Geist", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-text: "Geist", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --display-weight: 500;
+  --display-tracking: -0.035em;
+  --display-tracking-xl: -0.045em;
+
+  /* Operational Software Surface Tokens */
+  --bg: #f6f6f4;
+  --card: #ffffff;
+  --surface: #efefec;
+  --ink: #232323;
+  --muted: #666662;
+  --line: rgba(35, 35, 35, 0.12);
+  --line-strong: rgba(35, 35, 35, 0.24);
+  --action: #232323;
+  --action-ink: #ffffff;
+  --accent: #a1ffcb;
+  --accent-deep: #113823;
+
+  /* Radius (sharp: 4 / 6 / 8) */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 8px;
+  --r-btn: 6px;
+
+  /* Motion tokens (references/motion.md) */
+  --m-in: 140ms;
+  --m-out: 200ms;
+  --m-press: 90ms;
+  --m-panel: 200ms;
+  --m-slide: 240ms;
+  --m-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --m-ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --m-lift: -2px;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    border-color: var(--line);
+  }
+
+  html,
+  body {
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: var(--display-tracking);
+  }
+
+  code,
+  pre,
+  .font-mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  table,
+  td,
+  th,
+  input[type="number"],
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ==========================================================================
+   taste-skill Micro-Interaction & Component System
+   ========================================================================== */
+
+/* Buttons: 1px hover step, 1px press with .985 scale */
+.btn,
+button:not(.no-step) {
+  position: relative;
+  transition:
+    background-color var(--m-out) var(--m-ease),
+    color var(--m-out) var(--m-ease),
+    border-color var(--m-out) var(--m-ease),
+    box-shadow var(--m-out) var(--m-ease),
+    transform var(--m-press) var(--m-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover:not(:disabled),
+  button:not(.no-step):hover:not(:disabled) {
+    transform: translateY(-1px);
+    transition-duration: var(--m-in), var(--m-in), var(--m-in), var(--m-in), var(--m-press);
+  }
+  .btn:active:not(:disabled),
+  button:not(.no-step):active:not(:disabled) {
+    transform: translateY(1px) scale(0.985);
+  }
+}
+
+.btn--primary {
+  background-color: var(--action);
+  color: var(--action-ink);
+  border: 1px solid var(--action);
+  border-radius: var(--r-btn);
+  font-weight: 500;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background-color: #363636;
+}
+
+.btn--secondary {
+  background-color: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-btn);
+  font-weight: 500;
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background-color: var(--surface);
+  border-color: rgba(35, 35, 35, 0.4);
+}
+
+.btn--accent {
+  background-color: var(--accent);
+  color: var(--accent-deep);
+  border: 1px solid #5eead4;
+  border-radius: var(--r-btn);
+  font-weight: 600;
+}
+
+.btn--accent:hover:not(:disabled) {
+  background-color: #86efac;
+}
+
+/* Cards: 1px hairline border, zero blur shadow at rest, 2px lift when interactive */
+.taste-card {
+  background-color: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  transition:
+    transform var(--m-out) var(--m-ease),
+    border-color var(--m-out) var(--m-ease),
+    box-shadow var(--m-out) var(--m-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .taste-card--interactive:hover {
+    transform: translateY(var(--m-lift));
+    border-color: var(--line-strong);
+    box-shadow: 0 12px 24px -16px rgba(35, 35, 35, 0.14);
+    transition-duration: 180ms;
+  }
+}
+
+/* Inputs & Selects: crisp 1px border, subtle hover, accent ring on focus */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  border-radius: var(--r-md);
+  transition:
+    border-color var(--m-out) var(--m-ease),
+    box-shadow var(--m-out) var(--m-ease),
+    background-color var(--m-out) var(--m-ease);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):hover:not(:disabled),
+select:hover:not(:disabled),
+textarea:hover:not(:disabled) {
+  border-color: rgba(35, 35, 35, 0.36);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--ink) !important;
+  box-shadow: 0 0 0 3px rgba(161, 255, 203, 0.45) !important;
+  transition-duration: var(--m-in);
+}
+
+/* Focus visible animation */
+:is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover,
+  .btn:active,
+  button:hover,
+  button:active,
+  .taste-card--interactive:hover {
+    transform: none !important;
+  }
+}
+
+/* Table Responsive Wrapper & Touch Optimization */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Horizontal scrollbar styling for touch/mouse */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Print Overrides */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
